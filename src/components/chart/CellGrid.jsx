@@ -17,7 +17,11 @@ function CellGrid() {
       const border = getComputedStyle(nodeRef.current).getPropertyValue(
         '--wx-gantt-border',
       );
-      setColor(border ? border.substring(border.indexOf('#')) : '#1d1e261a');
+      // Matched rather than sliced from the '#': Lightning CSS (Turbopack) rewrites
+      // `#1d1e261a` to `rgba(29, 30, 38, .1)`, and the whole `1px solid rgba(...)` is not a
+      // colour — canvas ignores it and strokes black.
+      const match = border.match(/#[0-9a-f]+|(?:rgb|hsl)a?\([^)]*\)/i);
+      setColor(match ? match[0] : '#1d1e261a');
     }
   }, []);
 
@@ -31,7 +35,7 @@ function CellGrid() {
     position: 'absolute',
   };
 
-  return <div ref={nodeRef} style={style} />;
+  return <div ref={nodeRef} className="wx-cell-grid" style={style} />;
 }
 
 export default CellGrid;
